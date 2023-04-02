@@ -3,12 +3,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../lib/prisma";
 
 type Data = {
-	name: string;
+	result: any;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	let result = await prisma.batter.findMany({});
-	console.log(result);
 
-	res.status(200).json({ name: "John Doe" });
+	res.status(200).json({ result: result });
 }
