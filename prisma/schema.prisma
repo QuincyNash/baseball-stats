@@ -3,21 +3,93 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model pitchers {
-  id      Int    @id
-  ranking Int
-  number  Int
-  team    Int
-  year    Int
+enum PitchResult {
+  BALL
+  CALLED_STRIKE
+  SWINGING_STRIKE
+  FOUL
+  BUNT_STRIKE
+  IN_PLAY
+}
+
+enum Result {
+  STRIKE_OUT_SWINGING
+  STRIKE_OUT_LOOKING
+  WALK
+  HIT_BY_PITCH
+  HIT
+  OUT
+}
+
+enum Hit {
+  GROUND_BALL
+  FLY_BALL
+  LINE_DRIVE
+  POP_UP
+}
+
+model Pitcher {
+  id      Int     @id @default(autoincrement())
   name    String
+  number  Int
+  ranking Int
+  team    Team    @relation(fields: [teamId], references: [id])
+  teamId  Int
+  year    Int
+  Atbat   Atbat[]
 }
 
-model teams {
-  id     Int    @id
-  school String
+model Team {
+  id       Int       @id @default(autoincrement())
+  school   String
+  name     String
+  pitchers Pitcher[]
+  Game     Game[]
+}
+
+model Pitch {
+  id       Int         @id @default(autoincrement())
+  fastball Boolean
+  inzone   Boolean
+  result   PitchResult
+  atbat    Atbat       @relation(fields: [atbatId], references: [id])
+  atbatId  Int
+}
+
+model Atbat {
+  id        Int     @id @default(autoincrement())
+  position  Int?
+  hit       Hit?
+  speed     Int?
+  result    Result
+  bases     Int
+  pitcher   Pitcher @relation(fields: [pitcherId], references: [id])
+  pitcherId Int
+  batter    Batter  @relation(fields: [batterId], references: [id])
+  batterId  Int
+  runners   String
+  pitches   Pitch[]
+  game      Game    @relation(fields: [gameId], references: [id])
+  gameId    Int
+}
+
+model Game {
+  id         Int     @id @default(autoincrement())
+  date       String
+  opponent   Team    @relation(fields: [opponentId], references: [id])
+  opponentId Int
+  atbats     Atbat[]
+}
+
+model Batter {
+  id     Int     @id @default(autoincrement())
+  number Int
   name   String
+  year   Int
+  Atbat  Atbat[]
 }

@@ -7,6 +7,8 @@ type Data = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-	console.log(await prisma.pitchers.count());
+	let result = await prisma.batter.findMany({});
+	console.log(result);
+
 	res.status(200).json({ name: "John Doe" });
 }
