@@ -145,7 +145,7 @@ export default function Home() {
 								</div>
 							))}
 						</div>
-						<div className="ml-5">
+						{/* <div className="ml-5">
 							<div>
 								<PitcherInput></PitcherInput>
 							</div>
@@ -155,7 +155,7 @@ export default function Home() {
 							>
 								Submit
 							</button>
-						</div>
+						</div> */}
 					</div>
 				</form>
 			</main>
