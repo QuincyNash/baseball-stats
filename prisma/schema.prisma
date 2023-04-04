@@ -68,6 +68,7 @@ model Atbat {
   speed     Int?
   result    Result
   bases     Int
+  inning    Int
   pitcher   Pitcher @relation(fields: [pitcherId], references: [id])
   pitcherId Int
   batter    Batter  @relation(fields: [batterId], references: [id])
