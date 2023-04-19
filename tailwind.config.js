@@ -1,45 +1,4 @@
 /** @type {import('tailwindcss').Config} */
-
-let scale = 1;
-let spacing = {
-	1: 5 * scale + "px",
-	2: 10 * scale + "px",
-	3: 15 * scale + "px",
-	4: 20 * scale + "px",
-	5: 25 * scale + "px",
-	8: 40 * scale + "px",
-	10: 50 * scale + "px",
-	12: 60 * scale + "px",
-	sm: 24 * scale + "px",
-	md: 42 * scale + "px",
-};
-let gap = {
-	sm: 1 * scale + "px",
-	lg: 2 * scale + "px",
-};
-let borderWidth = {
-	DEFAULT: 1 * scale + "px",
-	2: 2 * scale + "px",
-	3: 3 * scale + "px",
-	4: 4 * scale + "px",
-	6: 6 * scale + "px",
-	8: 8 * scale + "px",
-};
-let fontSize = {
-	xl: [
-		16 * scale + "px",
-		{
-			lineHeight: 16 * scale + "px",
-		},
-	],
-	lg: [
-		12 * scale + "px",
-		{
-			lineHeight: 12 * scale + "px",
-		},
-	],
-};
-
 module.exports = {
 	content: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
 	theme: {
@@ -51,12 +10,47 @@ module.exports = {
 			},
 			gridTemplateRows: {
 				2: "repeat(2, 1fr)",
+				4: "repeat(4, 1fr)",
 				9: "repeat(9, 1fr)",
 			},
-			fontSize: fontSize,
-			borderWidth: borderWidth,
-			gap: gap,
-			spacing: spacing,
+			fontSize: {
+				xl: [
+					"calc(var(--scale) * 16px)",
+					{
+						lineHeight: "calc(var(--scale) * 16px)",
+					},
+				],
+				lg: [
+					"calc(var(--scale) * 12px)",
+					{
+						lineHeight: "calc(var(--scale) * 12px)",
+					},
+				],
+			},
+			borderWidth: {
+				DEFAULT: "1px",
+				2: "2px",
+				3: "3px",
+				4: "4px",
+				6: "6px",
+				8: "8px",
+			},
+			gap: {
+				sm: "1px",
+				lg: "2px",
+			},
+			spacing: {
+				1: "calc(var(--scale) * 5px)",
+				2: "calc(var(--scale) * 10px)",
+				3: "calc(var(--scale) * 15px)",
+				4: "calc(var(--scale) * 20px)",
+				5: "calc(var(--scale) * 25px)",
+				8: "calc(var(--scale) * 40px)",
+				10: "calc(var(--scale) * 50px)",
+				12: "calc(var(--scale) * 60px)",
+				sm: "calc(var(--scale) * 25px - 1px)",
+				md: "calc(var(--scale) * 40px + 2px)",
+			},
 		},
 	},
 	plugins: [],
