@@ -4,9 +4,10 @@ interface PitchProps {
 	placeholder?: string;
 	className?: string;
 	maxLength?: number;
+	type?: "string" | "number";
 	fontSize?: "small" | "large";
 	border?: "gray" | "none";
-	onChange: (value: string) => void;
+	onChange: (value: number | string | undefined) => void;
 }
 
 export default function NumberInput(props: PitchProps) {
@@ -26,7 +27,13 @@ export default function NumberInput(props: PitchProps) {
 				onChange={(event) => {
 					const result = event.target.value.replace(props.removeRegex, "");
 					if (result !== props.value) {
-						props.onChange(result);
+						if (props.type === "string") {
+							return props.onChange(result);
+						}
+						if (result === "") {
+							return props.onChange(undefined);
+						}
+						return props.onChange(parseInt(result));
 					}
 				}}
 			></input>

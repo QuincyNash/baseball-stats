@@ -8,6 +8,11 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum Hand {
+  LEFT
+  RIGHT
+}
+
 enum PitchResult {
   BALL
   CALLED_STRIKE
@@ -24,6 +29,7 @@ enum Result {
   HIT_BY_PITCH
   HIT
   OUT
+  NONE
 }
 
 enum Hit {
@@ -31,29 +37,33 @@ enum Hit {
   FLY_BALL
   LINE_DRIVE
   POP_UP
+  BUNT
 }
 
 model Pitcher {
   id      Int     @id @default(autoincrement())
-  name    String
+  name    String  @unique
   number  Int
+  hand    Hand
   ranking Int
   team    Team    @relation(fields: [teamId], references: [id])
   teamId  Int
-  year    Int
   Atbat   Atbat[]
+
+  @@unique([teamId, number])
 }
 
 model Team {
   id       Int       @id @default(autoincrement())
-  school   String
-  name     String
+  school   String    @unique
+  name     String    @unique
   pitchers Pitcher[]
   Game     Game[]
 }
 
 model Pitch {
   id       Int         @id @default(autoincrement())
+  number   Int
   fastball Boolean
   inzone   Boolean
   result   PitchResult
@@ -69,6 +79,7 @@ model Atbat {
   result    Result
   bases     Int
   inning    Int
+  outs      Int
   pitcher   Pitcher @relation(fields: [pitcherId], references: [id])
   pitcherId Int
   batter    Batter  @relation(fields: [batterId], references: [id])
@@ -81,7 +92,7 @@ model Atbat {
 
 model Game {
   id         Int     @id @default(autoincrement())
-  date       String
+  date       String  @unique
   opponent   Team    @relation(fields: [opponentId], references: [id])
   opponentId Int
   atbats     Atbat[]
@@ -89,8 +100,8 @@ model Game {
 
 model Batter {
   id     Int     @id @default(autoincrement())
-  number Int
-  name   String
+  number Int     @unique
+  name   String  @unique
   year   Int
   Atbat  Atbat[]
 }

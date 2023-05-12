@@ -5,28 +5,39 @@ import NumberInput from "../components/number_input";
 import Checkbox from "../components/checkbox";
 import GameDetails from "../components/game_details";
 
+export type Inning = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | undefined;
+export type Hand = "Left" | "Right";
+export type Ranking = 1 | 2 | 3 | 4 | 5 | 6;
+
 export interface Input {
-	pitches: (number | null)[];
-	pitcher?: number;
-	batter?: number;
-	result?: number;
-	outs?: number;
+	pitches: (number | undefined)[];
+	pitcher: number | undefined;
+	batter: number | undefined;
+	result: string;
+	outs: number | undefined;
 	runners: boolean[];
 	[key: string]: any;
 }
 
 export interface Pitcher {
-	name?: string;
-	number?: number;
-	hand?: "Left" | "Right";
-	ranking?: 1 | 2 | 3 | 4 | 5 | 6;
+	name: string;
+	number: number | undefined;
+	hand: Hand | undefined;
+	ranking: Ranking | undefined;
 	[key: string]: any;
 }
 
 export interface GameInfo {
-	school?: string;
-	team?: string;
-	date?: dayjs.Dayjs;
+	school: string;
+	team: string;
+	date: dayjs.Dayjs | undefined;
+	[key: string]: any;
+}
+
+export interface GameInfoInput {
+	school: string;
+	team: string;
+	date: string;
 	[key: string]: any;
 }
 
@@ -35,17 +46,30 @@ export default function Home() {
 
 	const [inputs, setInputs] = useState<Input[]>(
 		Array.from({ length: 72 }).map(() => ({
-			pitches: new Array(16).fill(null),
+			pitches: new Array(16).fill(undefined),
 			runners: [false, false, false],
+			result: "",
+			pitcher: undefined,
+			batter: undefined,
+			outs: undefined,
 		}))
 	);
 	const [pitchers, setPitchers] = useState<Pitcher[]>(
-		Array.from({ length: maxPitchers }).map(() => ({}))
+		Array.from({ length: maxPitchers }).map(() => ({
+			name: "",
+			hand: undefined,
+			number: undefined,
+			ranking: undefined,
+		}))
 	);
-	const [gameInfo, setGameInfo] = useState<GameInfo>({});
-	const [innings, setInnings] = useState(["1", "2", "3", "4", "5", "6", "7", "8"]);
+	const [gameInfo, setGameInfo] = useState<GameInfo>({
+		school: "",
+		team: "",
+		date: undefined,
+	});
+	const [innings, setInnings] = useState<Inning[]>([1, 2, 3, 4, 5, 6, 7, 8]);
 
-	function setInput(index: number, property: string, value: any, propIndex?: number) {
+	function setInput(index: number, property: string, value: any, propIndex?: number): void {
 		let newInputs = structuredClone(inputs);
 		if (propIndex !== undefined) {
 			newInputs[index][property][propIndex] = value;
@@ -55,38 +79,52 @@ export default function Home() {
 		setInputs(newInputs);
 	}
 
-	function setPitcher(index: number, property: string, value: any) {
+	function setPitcher(index: number, property: string, value: any): void {
 		let newPitchers = structuredClone(pitchers);
 		newPitchers[index][property] = value;
 		setPitchers(newPitchers);
 	}
 
-	function setInfo(property: string, value: any) {
-		let newGameInfo = structuredClone(gameInfo);
+	function setInfo(property: string, value: any): void {
+		let newGameInfo: GameInfo = {
+			school: gameInfo.school,
+			team: gameInfo.team,
+			date: gameInfo.date?.clone(),
+		};
 		newGameInfo[property] = value;
 		setGameInfo(newGameInfo);
 	}
 
-	function setInning(index: number, value: string) {
+	function setInning(index: number, value: Inning): void {
 		let newInnings = structuredClone(innings);
 		newInnings[index] = value;
 		setInnings(newInnings);
 	}
 
-	function formatNumber(value: number | undefined | null) {
-		if (value === null || value === undefined) {
+	function formatNumber(value: number | undefined): string {
+		if (value === undefined) {
 			return "";
 		} else {
 			return value.toString();
 		}
 	}
 
-	async function onSubmit(event: FormEvent) {
+	function formatString(value: string | undefined): string {
+		return value === undefined ? "" : value;
+	}
+
+	async function onSubmit(event: FormEvent): Promise<void> {
 		event.preventDefault();
+
+		let newGameInfo: GameInfoInput = {
+			school: gameInfo.school,
+			team: gameInfo.team,
+			date: formatString(gameInfo.date?.format("MM/DD/YYYY")),
+		};
 
 		const response = await fetch("api/submit", {
 			method: "POST",
-			body: JSON.stringify({ inputs, pitchers, gameInfo, innings }),
+			body: JSON.stringify({ inputs, pitchers, gameInfo: newGameInfo, innings }),
 		});
 		const data = await response.json();
 		console.log(data);
@@ -108,13 +146,13 @@ export default function Home() {
 								{innings.map((inning, i) => (
 									<NumberInput
 										key={i}
-										removeRegex={/[^1-9]/gm}
+										removeRegex={/[^1-8]/gm}
 										maxLength={1}
 										fontSize="large"
 										border="gray"
 										className="w-5 h-5"
-										value={inning}
-										onChange={(value) => setInning(i, value)}
+										value={formatNumber(inning)}
+										onChange={(value) => setInning(i, value as Inning)}
 									></NumberInput>
 								))}
 							</div>
@@ -162,8 +200,9 @@ export default function Home() {
 													></NumberInput>
 												</div>
 												<NumberInput
-													removeRegex={/[^\d]/gm}
-													value={formatNumber(input.result)}
+													removeRegex={/[^\dBKHP]/gm}
+													type={"string"}
+													value={input.result}
 													maxLength={4}
 													className="h-sm text-xl"
 													onChange={(value) => {
